@@ -102,6 +102,35 @@ The program never calls `MAEIssueDCRTMacOSWithCallback` and does **not** issue, 
 
 See `research/local-aks/RESULTS.md`: all 18 AKS symbols resolve, isolated keybag create/unload succeed, and non-attested signing-key creation for classes 9/10/11 returns `0xE00002C1`. Hardware dependency versus caller rights is **not proven**.
 
+## Experiment C — native STS / authentication stage observer (not yet executed on Mac)
+
+Apple's March 2026 Platform Security guide says remote unlock uses mutually authenticated Station-to-Station (STS), long-term pairing keys and ephemeral per-session keys. It notes a kernel STS path on Macs without a Secure Enclave **for some device-unlock flows**, but the Mirroring-specific security section says the Mac Secure Enclave enforces the local authentication policy. The public support requirements still demand Apple Silicon or Intel T2 for native iPhone Mirroring. Therefore a standalone software identity is **not yet proven compatible**.
+
+Sources:
+- https://help.apple.com/pdf/security/en_US/apple-platform-security-guide.pdf (pages 64, 66–67)
+- https://support.apple.com/en-us/120421
+- https://dortania.github.io/OpenCore-Legacy-Patcher/FAQ.html
+
+A small observer was added to classify metadata from existing unified logs **without writing raw messages, certificates, keys or identifiers**:
+
+```bash
+git pull
+python3 -m unittest discover -s tests -p 'test_sts_observer.py' -v
+```
+
+1. Keep the second jailbreak iPhone disconnected. Leave Mirra's invasive service/staging **off** for this baseline.
+2. Put your **primary** iPhone near the Mac, enable Wi-Fi/Bluetooth and leave it locked; try opening the **original** Apple iPhone Mirroring app and press Connect once.
+3. Immediately run:
+
+```bash
+python3 research/standalone/sts_observer.py --recent 2m
+```
+
+4. Share the generated JSON only, along with the **visible error text in the original app**. The script does not attempt to connect or send anything to the iPhone; it only classifies logs. Use `--recent 1m` if macOS reports its log result is too large.
+5. No `sudo`, SIP changes, DCRT issuance, SSH bridge, or permanent system modification is required. If the original app refuses to launch before starting any discovery, report that fact. No events does **not** mean authentication succeeded or failed.
+
+The observer is **best-effort**: unified logs may omit, redact or rename subsystem messages, and errors can occur before any STS operation. It never reports a verified pairing.
+
 ## Next gate (after experiment B)
 
 Map the trust requirements at the *original* iPhone Mirroring boundary: which calls must provide genuine attestation, which are just session-management interfaces, and whether any legitimate software-only Mac STS path is compatible with a stock iPhone for Mirroring. Only integrate a new production `local` backend after that path has been validated. AWDL/video remain separate requirements.
