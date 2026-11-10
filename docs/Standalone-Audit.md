@@ -121,4 +121,10 @@ python3 -m unittest discover -s tests -p 'test_standalone_transport.py' -v
 
 We have not established exact binary formats and validation rules of all private STS messages, the meaning of kernel selector 49, whether AppleKeyStore rejects the key before hardware access, the feasibility of kernel-only STS for Mirroring on this host, or whether the target iPhone will ever accept a standalone software identity.
 
+## Verified transport test (2026-11-10)
+
+On the target Hackintosh, `python3 research/standalone/local_endpoint.py --probe` returned `local_process_connected=true`, `ssh_used=false`, and `generate_rejected=true`; the two new `test_standalone_transport.py` tests passed. **This establishes local process transport only**, not cryptographic interop.
+
+The next research-only diagnostic is `research/standalone/dcrt-probe.m` (see `research/standalone/README.md`), which can inspect macOS MobileActivationMacOS symbols and, only when explicitly requested, check for a cached DCRT without writing/exporting it. The probe has **not been compiled or executed** yet.
+
 **Current status: transport proof exists; standalone iPhone Mirroring does not.**
