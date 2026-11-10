@@ -16,7 +16,17 @@ On the Hackintosh, `research/standalone/local_endpoint.py --probe` returned:
 
 **Meaning:** `scripts/transport.py:Endpoint(command=[...])` successfully transports JSON-lines to a local process. This is not an authentication success: `generate` is intentionally rejected, as are all other security-sensitive operations.
 
-## Experiment B — macOS DCRT availability (not yet executed)
+## Experiment B — macOS DCRT availability (symbol stage confirmed 2026-11-10)
+
+The user compiled `research/standalone/dcrt-probe.m` on the Intel Hackintosh and ran the default **symbols-only** mode. The JSON result reported:
+
+```json
+{"probe":"local-dcrt","mode":"symbols_only","framework_loaded":1,"copy_symbol_found":1,"issue_symbol_found":1,"certificate_bytes_exported":false,"certificate_issued":false,"hardware_attestation_verified":false,"mirroring_verified":false}
+```
+
+**Meaning:** MobileActivationMacOS loads and the DCRT copy/issue entrypoints resolve. Neither function was invoked; no certificate was returned or issued, and native Mirroring is **not** verified.
+
+### Optional next gate — cached certificate lookup (not yet executed)
 
 `dcrt-probe.m` checks whether macOS exposes `MAECopyDCRTMacOSWithError` / `MAEIssueDCRTMacOSWithCallback`, the native functions referenced by `src/mirroring/keystore.m`.
 
