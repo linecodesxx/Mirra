@@ -58,7 +58,8 @@ int main(int argc, const char *argv[]) {
         int bag = -1;
         const int keyClass = argc == 4 ? atoi(argv[3]) : 9;
         if (keyClass != 9 && keyClass != 10 && keyClass != 11) {
-            fprintf(stderr, "Invalid key class. Only 9, 10, 11 are accepted.\\n");
+            fprintf(stderr, "Invalid key class. Only 9, 10, 11 are accepted.\n");
+            scrub(password, sizeof(password));
             dlclose(lib);
             return 2;
         }
