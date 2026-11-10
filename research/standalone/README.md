@@ -48,6 +48,22 @@ The user ran `./build/dcrt-probe --copy-dcrt` on the Hackintosh. Observed values
 }
 ```
 
+### Confirmed daemon-level device support rejection (2026-11-10 22:53:48, device local time)
+
+The user repeated `./build/dcrt-probe --copy-dcrt` and inspected the unified log. The decisive non-sensitive lines were:
+
+```text
+dcrt-probe: activating connection: ... name=com.apple.mobileactivationd
+mobileactivationd: DCRT requested by dcrt-probe
+mobileactivationd: -[MobileActivationMacOSDaemon copyDCRTWithCompletionBlock:withCompletion:]: Not supported on this device.
+```
+
+**New conclusion:** The process reached `mobileactivationd`; the daemon explicitly rejected the requested DCRT copy operation as unsupported **on this device**. This is materially stronger than simply observing a `-1` error and zero certificate bytes. On this Hackintosh the macOS DCRT-copy path is **not usable** in its current state. The log does **not** disclose the daemon's internal eligibility check or prove that physical SEP absence is the sole cause. No issuance or Apple-side attestation was attempted.
+
+**Independent corroboration:** Apple's [iPhone Mirroring requirements](https://support.apple.com/en-us/120421) limit the native feature to Apple Silicon Macs or Intel Macs with T2. [OCLP's FAQ](https://dortania.github.io/OpenCore-Legacy-Patcher/FAQ) attributes iPhone Mirroring connection failure on patched unsupported Macs to failure to establish T2 attestation. These sources corroborate a real security dependency, not an automatic software-workaround.
+
+**Decision:** Stop calling `copyDCRT` repeatedly or trying to paper over this with fake certificates. Prioritize static analysis of STS trust requirements and whether any supported software identity path can satisfy the *stock iPhone* without Apple T2. Keep local-process transport work isolated and fail closed. AWDL remains an independent dependency.
+
 **Interpretation:** macOS has a DCRT accessor entrypoint, but this process received no cached DCRT. `-1` is not a sufficient explanation of root cause. The system might not have a cached identity; access might be denied; the prerequisite secure hardware might be unavailable. Do not infer absence of hardware as the proven cause based solely on this output. Do not invoke DCRT issuance merely to test symbol presence; it can change device activation state.
 
 **Next safe step:** capture bounded/redacted `mobileactivationd` unified logs around a single `--copy-dcrt` run to look for concrete failures, or inspect the returned NSError's non-sensitive diagnostic fields. Do not publish certificates, tokens or raw persistent identifiers.
