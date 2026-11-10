@@ -27,8 +27,9 @@ static void output(NSDictionary *object) {
 
 int main(int argc, const char *argv[]) {
     @autoreleasepool {
-        if (argc != 2 || strcmp(argv[1], "--test-signing-key") != 0) {
-            fprintf(stderr, "Usage: local-aks-key-probe --test-signing-key\n");
+        if ((argc != 2 && argc != 4) || strcmp(argv[1], "--test-signing-key") != 0 ||
+            (argc == 4 && strcmp(argv[2], "--key-class") != 0)) {
+            fprintf(stderr, "Usage: local-aks-key-probe --test-signing-key [--key-class 9|10|11]\n");
             return 2;
         }
         const char *path =
@@ -55,7 +56,12 @@ int main(int argc, const char *argv[]) {
         }
 
         int bag = -1;
-        const int keyClass = 9; // Matches Mirra endpoint.m's default signing-key class.
+        const int keyClass = argc == 4 ? atoi(argv[3]) : 9;
+        if (keyClass != 9 && keyClass != 10 && keyClass != 11) {
+            fprintf(stderr, "Invalid key class. Only 9, 10, 11 are accepted.\\n");
+            dlclose(lib);
+            return 2;
+        }
         int bagStatus = createBag(password, (int)sizeof(password), 0, &bag);
         scrub(password, sizeof(password));
 
