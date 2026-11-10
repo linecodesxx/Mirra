@@ -26,7 +26,33 @@ The user compiled `research/standalone/dcrt-probe.m` on the Intel Hackintosh and
 
 **Meaning:** MobileActivationMacOS loads and the DCRT copy/issue entrypoints resolve. Neither function was invoked; no certificate was returned or issued, and native Mirroring is **not** verified.
 
-### Optional next gate — cached certificate lookup (not yet executed)
+### Cached DCRT lookup — confirmed negative on 2026-11-10
+
+The user ran `./build/dcrt-probe --copy-dcrt` on the Hackintosh. Observed values:
+
+```json
+{
+  "probe": "local-dcrt",
+  "mode": "copy_cached_certificate",
+  "framework_loaded": 1,
+  "copy_symbol_found": 1,
+  "issue_symbol_found": 1,
+  "certificate_available": 0,
+  "certificate_size": 0,
+  "error_domain": "com.apple.MobileActivation.ErrorDomain",
+  "error_code": -1,
+  "certificate_bytes_exported": false,
+  "certificate_issued": false,
+  "hardware_attestation_verified": false,
+  "mirroring_verified": false
+}
+```
+
+**Interpretation:** macOS has a DCRT accessor entrypoint, but this process received no cached DCRT. `-1` is not a sufficient explanation of root cause. The system might not have a cached identity; access might be denied; the prerequisite secure hardware might be unavailable. Do not infer absence of hardware as the proven cause based solely on this output. Do not invoke DCRT issuance merely to test symbol presence; it can change device activation state.
+
+**Next safe step:** capture bounded/redacted `mobileactivationd` unified logs around a single `--copy-dcrt` run to look for concrete failures, or inspect the returned NSError's non-sensitive diagnostic fields. Do not publish certificates, tokens or raw persistent identifiers.
+
+### Optional next gate — cached certificate lookup (already executed; retained as reproduction steps)
 
 `dcrt-probe.m` checks whether macOS exposes `MAECopyDCRTMacOSWithError` / `MAEIssueDCRTMacOSWithCallback`, the native functions referenced by `src/mirroring/keystore.m`.
 
