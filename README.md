@@ -33,6 +33,8 @@ Planned experiments: native macOS AppleKeyStore as a local endpoint; one-time pa
 
 **[Read the complete Fork Updates roadmap](docs/Fork-Updates.md)** — hypotheses, source files, experimental order, failure criteria and success definition.
 
+**[Standalone architecture audit](docs/Standalone-Audit.md)** — recursive repository analysis and verified blockers. The experimental [local endpoint probe](research/standalone/local_endpoint.py) checks transport only; it does not provide Apple attestation or working Mirroring.
+
 ---
 
 ## Experimental status
