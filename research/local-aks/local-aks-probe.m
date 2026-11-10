@@ -72,7 +72,8 @@ int main(int argc, const char *argv[]) {
         }
         int bag = -1;
         int createStatus = create(secret, (int)sizeof(secret), 0, &bag);
-        explicit_bzero(secret, sizeof(secret));
+        volatile uint8_t *wipe = secret;
+        for (size_t i = 0; i < sizeof(secret); ++i) wipe[i] = 0;
         int unloadStatus = -1;
         if (createStatus == 0 && bag >= 0) unloadStatus = unload(bag);
         // Never expose a native keybag handle in the report.
