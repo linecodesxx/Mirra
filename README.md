@@ -25,6 +25,16 @@ available in the background. Apple's iPhone Mirroring app provides the screen,
 keyboard, pointer and authentication. **The iPhone you mirror does not need a
 jailbreak.**
 
+## Fork Updates — Standalone Mirra / No Secondary iPhone
+
+> **Research proposal — not implemented.** This fork investigates making Apple's native iPhone Mirroring work on an Intel Hackintosh **without a second jailbroken iPhone**. Upstream Mirra still requires its jailbreak bridge; standalone operation is not yet verified.
+
+Planned experiments: native macOS AppleKeyStore as a local endpoint; one-time pairing and session persistence; a Go/Rust software AKS backend (optionally Alpine/Docker); minimum virtual SEP interfaces; and mapping trust checks on both macOS and stock iOS. AWDL and VideoToolbox compatibility are tracked separately. Software signatures or a fake DCRT do **not** automatically establish trusted Apple device identity.
+
+**[Read the complete Fork Updates roadmap](docs/Fork-Updates.md)** — hypotheses, source files, experimental order, failure criteria and success definition.
+
+---
+
 ## Experimental status
 
 Mirra is an independent community project and is not affiliated with Apple.
